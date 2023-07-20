@@ -110,4 +110,48 @@ tidy_variants <- function(filtered_variants) {
 
 cell_ufv <- tidy_variants(ufv)
 
+filter_gbci_genes <- function(tidy_variants) {
+  gbci_genes <- c(
+    "ARID1A", "DDR2", "ELF3", "NOTCH2", "ASXL2", "EPCAM", "MSH2",
+    "MSH6", "RHOB", "ATR", "MLH1", "PIK3CA", "PPARG", "RHOA", "SETD2",
+    "FAT1", "FBXW7", "FGFR3", "APC", "TERT", "CDKN1A", "E2F3", "EGFR",
+    "EZH2", "KMT2C", "PMS2", "CDKN2A", "CDKN2B", "FANCC", "MTAP",
+    "PSIP1", "RXRA", "TSC1", "FGFR2", "PTEN", "ATM", "CCND1", "HRAS",
+    "KMT2A", "ERBB3", "KMT2D", "KRAS", "MDM2", "BRCA2", "KLF5", "RB1",
+    "FOXA1", "ZFP36L1", "CREBBP", "TSC2", "BRCA1", "CDK12", "ERBB2",
+    "KANSL1", "NF1", "TP53", "ERCC2", "KMT2B", "EP300", "KDM6A",
+    "MED12", "STAG2"
+  )
+  tidy_variants |>
+    rowwise() |>
+    dplyr::filter(any(gene %in% gbci_genes)) |>
+    ungroup()
+}
+
+cell_ufv <- filter_gbci_genes(cell_ufv)
+
+parse_allele_coverage <- function(allele_coverage) {
+  alleles <- strsplit(allele_coverage, ",")[[1]]
+  allele_df <- strsplit(alleles, "=") |>
+    unlist() |>
+    matrix(byrow = TRUE, ncol = 2) |>
+    as.data.frame()
+  colnames(allele_df) <- c("seq", "count")
+  allele_df$count <- as.integer(allele_df$count)
+  allele_df
+}
+
+get_frac_ref_of_coverage <- function(parsed_alleles, ref, coverage) {
+  parsed_alleles[parsed_alleles$seq == ref, ]$count / coverage
+}
+
+cell_ufv <- cell_ufv |>
+  rowwise() |>
+  mutate(
+    pct_ref = parse_allele_coverage(allele_coverage) |>
+      get_frac_ref_of_coverage(ref, coverage)
+  )
+
+cell_ufv |> select(-workflow, -MyVariantDefaultDb_hg19, -exec, -polyphen, -go_20200511, -hg19_exac_1)
+
 usethis::use_data(cell_ufv, overwrite = TRUE)
