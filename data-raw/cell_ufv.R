@@ -152,6 +152,8 @@ cell_ufv <- cell_ufv |>
       get_frac_ref_of_coverage(ref, coverage)
   )
 
-cell_ufv |> select(-workflow, -MyVariantDefaultDb_hg19, -exec, -polyphen, -go_20200511, -hg19_exac_1)
+cell_ufv <- cell_ufv |> select(-workflow, -MyVariantDefaultDb_hg19, -exac, -polyphen,
+                   -go_20200511, -hg19_exac_1, -hg19_cosmic_82, -hg19_dbsnp_154,
+                   -hg19_omim_20191001, -hg19_refgene_201, -som_pval, -sift)
 
 usethis::use_data(cell_ufv, overwrite = TRUE)
