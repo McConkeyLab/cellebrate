@@ -66,8 +66,7 @@ rosi_degs_no_dup <- rosi_degs |>
 
 sig_luminal_choi <- gene_list |>
   filter(human != "HSD3B1") |> # 1 to many (H -> M) mapping
-  inner_join(rosi_degs_no_dup, by = c(human = "symbol")) |>
+  right_join(rosi_degs_no_dup, by = c(human = "symbol")) |>
   select(-value, -keep)
-
 
 usethis::use_data(sig_luminal_choi, overwrite = TRUE)
