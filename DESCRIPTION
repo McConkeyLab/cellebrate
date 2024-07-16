@@ -19,3 +19,5 @@ Imports:
     ggplot2,
     ggrepel,
     SummarizedExperiment
+Remotes:
+  McConkeyLab/bladdr
